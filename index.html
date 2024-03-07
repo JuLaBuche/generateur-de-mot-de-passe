@@ -4,12 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Générateur de Mot de Passe</title>
+  <link rel="icon" type="image/ico" href="securite.ico" />
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      margin: 50px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    label {
+      display: inline-block;
+      width: 200px;
+      margin: 5px;
+      text-align: left;
+    }
+
+    input {
+      margin: 5px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 10px 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #password-output {
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    #error-message {
+      color: red;
+      margin-top: 5px;
+    }
+  </style>
 </head>
-<body>
+<body onload="generatePassword()">
   <h1>Générateur de Mot de Passe</h1>
 
   <label for="length">Longueur du Mot de Passe:</label>
   <input type="number" id="length" value="12" oninput="validateInput()">
+  <input type="range" id="lengthRange" min="5" max="128" step="1" value="12" oninput="updateRange()">
 
   <br>
 
@@ -29,11 +83,13 @@
 
   <button onclick="generatePassword()">Générer Mot de Passe</button>
 
+  <div id="error-message"></div>
+
   <div id="password-output"></div>
 
   <br>
 
-  <button onclick="copyToClipboard()">Copier dans le Presse-Papiers</button>
+  <button onclick="copyToClipboard()" id="copy-button">Copier dans le Presse-Papiers</button>
 
   <script>
     function generatePassword() {
@@ -46,31 +102,40 @@
       const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
       const numberChars = '0123456789';
-      const symbolChars = '!@#$%^&*()_-+=<>?';
+      const symbolChars = '!@#$%£&*()_-+=<>?';
 
       let availableChars = '';
+      let password = '';
 
       if (includeUppercase) {
         availableChars += uppercaseChars;
+        password += getRandomChar(uppercaseChars);
       }
       if (includeLowercase) {
         availableChars += lowercaseChars;
+        password += getRandomChar(lowercaseChars);
       }
       if (includeNumbers) {
         availableChars += numberChars;
+        password += getRandomChar(numberChars);
       }
       if (includeSymbols) {
         availableChars += symbolChars;
+        password += getRandomChar(symbolChars);
       }
 
-      let password = '';
-
-      for (let i = 0; i < length; i++) {
+      for (let i = password.length; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * availableChars.length);
         password += availableChars.charAt(randomIndex);
       }
 
       document.getElementById('password-output').innerText = password;
+      document.getElementById('error-message').innerText = '';
+    }
+
+    function getRandomChar(characters) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      return characters.charAt(randomIndex);
     }
 
     function copyToClipboard() {
@@ -94,7 +159,23 @@
 
     function validateInput() {
       const lengthInput = document.getElementById('length');
+      const errorMessage = document.getElementById('error-message');
+      const lengthValue = parseInt(lengthInput.value);
+
+      if (lengthValue < 5 || lengthValue > 128) {
+        errorMessage.innerText = 'La longueur du mot de passe doit être entre 5 et 128 caractères.';
+      } else {
+        errorMessage.innerText = '';
+      }
+
       generatePassword();
+    }
+
+    function updateRange() {
+      const lengthInput = document.getElementById('length');
+      const lengthRange = document.getElementById('lengthRange');
+      lengthInput.value = lengthRange.value;
+      validateInput();
     }
   </script>
 </body>
